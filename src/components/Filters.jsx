@@ -18,56 +18,70 @@ export default function () {
         
         console.log(results.data);
 
-        var subCategory = undefined;
-        var difficulty = undefined;
-        var turbo = undefined;
-        var copy = undefined;
+        var subCategory = [];
+        var difficulty = [];
+        var turbo = [];
+        var copy = [];
 
         //Foreach permettant de mettre a jour les key des differents params de runs
         results.data.forEach((row) => {
-            //console.log(row)
             switch (row.name) {
 
                 case "Glitch Category":
-                    subCategory = row.id;
-                    break;
-
                 case "Category":
-                    subCategory = row.id;
+                    //console.log(row.values.values[Object.keys(row.values.values)[0]].label) // Label Sub-Caté [0]
+                    //console.log(Object.keys(row.values.values)[0]) //Key Sub-Caté[0]
+                    subCategory.push(row.id)
+                    subCategory.push(row.values.values[Object.keys(row.values.values)[0]].label)
+                    subCategory.push(Object.keys(row.values.values)[0])
+                    console.log(subCategory)
                     break;
 
                 case "Difficulty":
-                    difficulty = row.id;
+                    difficulty.push(row.id)
+                    difficulty.push(row.values.values[Object.keys(row.values.values)[0]].label)
+                    difficulty.push(Object.keys(row.values.values)[0])
+                    //console.log(difficulty)
                     break;
 
                 case "Turbo":
-                    turbo = row.id;
+                    turbo.push(row.id);
+                    turbo.push(row.values.values[Object.keys(row.values.values)[0]].label);
+                    turbo.push(Object.keys(row.values.values)[0])
+                    //console.log(turbo)
                     break;
 
                 case "Copy":
-                    copy = row.id;
+                    copy.push(row.id);
+                    copy.push(row.values.values[Object.keys(row.values.values)[1]].label);
+                    copy.push(Object.keys(row.values.values)[1])
+                    //console.log(copy)
                     break;
 
                 default: break;
             }
-            //TODO value par default
+            //Value par default
             setFilters({
                 ...filters,
                 subCategory: {
-                    ...filters.subCategory,
-                    key: subCategory
+                    label : subCategory[1],
+                    key: subCategory[0],
+                    value : subCategory[2]
                 },
                 difficulty: {
-                    ...filters.difficulty,
-                    key: difficulty
+                    label : difficulty[1],
+                    key: difficulty[0],
+                    value : difficulty[2]
                 },
                 turbo: {
-                    ...filters.turbo,
-                    key: turbo
+                    label : turbo[1],
+                    key: turbo[0],
+                    value : turbo[2]
                 },
                 copy: {
-                    ...filters.copy,
-                    key: copy
+                    label : copy[1],
+                    key: copy[0],
+                    value : copy[2]
                 }
             })
 
@@ -133,6 +147,7 @@ export default function () {
     useEffect(() => {
         console.log(filters)
     }, [filters])
+    
     useUpdateEffect(() => {
 
     }, [valueButtons]);
