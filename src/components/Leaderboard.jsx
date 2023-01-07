@@ -14,7 +14,8 @@ export default function () {
     }
     
     async function callAllRuns() {
-       
+        const start = new Date();
+
         var results = [];
         
         var url = "https://www.speedrun.com/api/v1/runs?game=3dxkz0v1&status=verified&category="+filters.categoryId+"&max=200&embed=players"
@@ -23,7 +24,7 @@ export default function () {
             var response = await fetch(url);
             
             var data = await response.json();
-            
+            console.log(data)
             var nextUrl = await data.pagination.links
             
             if (nextUrl.length > 1) {
@@ -41,6 +42,12 @@ export default function () {
         results = results.sort(byTime);
         //console.log(results)
         setRuns(results);
+
+        const end = new Date();
+
+        const diffTime = Math.abs(end - start);
+        console.log('traitement : ' + diffTime + 'ms')
+        console.log(results)
     }
    
     function filterRuns(){
