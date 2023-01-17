@@ -1,6 +1,9 @@
+.allo{
+    display: flex;
+}
 table{
     color :white;
-    background-color: rgba(29, 44, 55, 1);
+    background-color: rgba(0, 0, 0, 0.5);
     border-collapse: collapse;
     margin: auto;
     width: 60%;

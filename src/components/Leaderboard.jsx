@@ -8,12 +8,72 @@ export default function () {
     const [runsFiltered, setRunsFiltered] = useState([]);
 
     const [filters, setFilters] = useFilter();
+    var offset = 0;
    
     function byTime(a,b){
         return parseInt(a.times.primary_t) - parseInt(b.times.primary_t);
     }
+
+
+    function getPage(offset){
+        return fetch("https://www.speedrun.com/api/v1/runs?game=3dxkz0v1&status=verified&category="+filters.categoryId+"&max=200&embed=players&offset="+offset)
+        .then(response => response.json())
+        .then(data => {
+            console.log("Offset dans getpage = " + offset)
+            return {data, offset}
+        })
+        .catch(error => {
+            console.error(error)
+            return Promise.reject(error)
+        })
+        }
     
-    async function callAllRuns() {
+    
+    function getAllRunsPromise(){
+        return getPage(offset).then(page =>{
+            if(page.data.data.length == 0){
+                //Il n'y a plus de data dans le call api
+                return page.data.data;
+            }else{
+                //Sinon on continue les calls
+                offset += 200
+                return getAllRunsPromise().then(nextPageData => {
+                    //console.log('page.data.data : ' + JSON.stringify(page.data.data))
+                    return page.data.data.concat(nextPageData)
+                })
+            }
+        })
+        .catch(error => {
+            console.error(error)
+            return Promise.reject(error)
+        })
+    }
+
+    function promiseAllRuns(){
+
+        const start = new Date();
+        
+        Promise.all([getAllRunsPromise()])
+        .then(allData => {
+            console.log(allData)
+            
+            //Trie du tableau, on le .flat() avant
+            allData = allData.flat();
+            allData.sort(byTime);
+            
+            setRuns(allData)
+            const end = new Date();
+            
+            const diffTime = Math.abs(end - start);
+            console.log('Avec promise.all : ' + diffTime + 'ms')
+        })
+        .catch(error => {
+            console.error(error)
+        })
+    }
+
+    // Test avec async/await mais meilleur perf avec promise.all
+    /*async function callAllRuns() {
         const start = new Date();
 
         var results = [];
@@ -39,8 +99,9 @@ export default function () {
 
             results.push(...data.data);
         }
-        results = results.sort(byTime);
-        //console.log(results)
+        console.log(results[0])
+        results.sort(byTime);
+        console.log(results)
         setRuns(results);
 
         const end = new Date();
@@ -48,7 +109,7 @@ export default function () {
         const diffTime = Math.abs(end - start);
         console.log('traitement : ' + diffTime + 'ms')
         console.log(results)
-    }
+    }*/
    
     function filterRuns(){
 
@@ -62,13 +123,7 @@ export default function () {
         const tab = new Set();
         // TODO Gerer le fait qu'en boss rush il n'y a pas de subctahégory donc pas de filtrage à faire
 
-        var runsWithFilters = runs.filter(run => {
-            if(run.values[filters.subCategory.key] == [filters.subCategory.value] /*&& run.values[filters.subCategory.key] == [filters.subCategory.value]*/){
-                return true;
-            }else{
-                return false
-            }
-        })
+        var runsWithFilters = runs.filter(run => run.values[filters.subCategory.key] == [filters.subCategory.value])
         .filter(run => run.values[filters.difficulty.key] == [filters.difficulty.value])
         .filter(run => run.values[filters.copy.key] == [filters.copy.value])
         .filter(run => run.values[filters.turbo.key] == [filters.turbo.value])
@@ -106,10 +161,13 @@ export default function () {
         }
     }
     
+    // Lancement des calls api lors du premier render
     useEffect(() => {
-        callAllRuns()
+        //callAllRuns()
+        promiseAllRuns();
     }, [filters.categoryId])
     
+    // Filtre des runs lorsque runs est défini ou les filtres sont modifiés
     useEffect(() => {
         console.log(runs)
         filterRuns()
@@ -124,6 +182,7 @@ export default function () {
     }, [filters])*/// TODO mettre les filtres en dependances
 
     if(!(runsFiltered == undefined)){
+        if( runsFiltered.length != 0){
         return (
             <table>
                 <thead>
@@ -134,14 +193,23 @@ export default function () {
                 <tbody>
                     
                     {runsFiltered.map((run) => {
+                        //TODO Mettre les liens des videos (si il y en a) et mettre icon youtube ou twitch avec code couleur en hover
                         return <tr key={run.id}>
                                     <td>{run.players.data[0].names.international}</td>
                                     <td>{getPrettyTime(run.times.primary_t)}</td>
+                                    <td><i class="fa-brands fa-youtube"></i></td>
                                 </tr>
                     })}
                 </tbody>
             </table>
         );
+    }else{
+        return (
+            <div>
+                Aucune runs
+            </div>
+        );
+    }
     }
 }
 

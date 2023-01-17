@@ -5,11 +5,16 @@ import Filters from './components/Filters'
 import Category from './components/Category'
 import Testing from './components/Testing'
 
+
 function App() {
 	return (
 		<div className="App">
 			<FilterProvider>
-<Testing/>
+				<Category/>
+				<div className='allo'>
+				<Filters/>
+				<Leaderboard />
+				</div>
 			</FilterProvider>
 		</div>
 	)
@@ -17,7 +22,5 @@ function App() {
 
 export default App
 /*
-<Category/>
-<Filters/>
-<Leaderboard />
+<Testing/>
 */

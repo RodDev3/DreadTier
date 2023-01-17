@@ -4,7 +4,7 @@ import useUpdateEffect from './CustomHooks';
 import Leaderboard from './Leaderboard';
 import { useOptions } from './OptionsContext';
 import '../styles/Leaderboard.css'
-
+//!! OBSOLETE A DELETE
 export default function () {
 
     const [dataApi, setDataApi] = useState();
