@@ -10,17 +10,17 @@ function App() {
 	return (
 		<div className="App">
 			<FilterProvider>
-				<Category/>
+				<Category />
 				<div className='allo'>
-				<Filters/>
-				<Leaderboard />
+					<Filters />
+					<Leaderboard />
 				</div>
 			</FilterProvider>
 		</div>
 	)
 }
 
-export default App
+export default App;
 /*
 <Testing/>
 */

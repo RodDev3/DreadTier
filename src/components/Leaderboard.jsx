@@ -3,213 +3,224 @@ import { useFilter } from "../contexts/FilterContext";
 import useUpdateEffect from "./CustomHooks";
 
 export default function () {
+	const [runs, setRuns] = useState([]);
+	const [runsFiltered, setRunsFiltered] = useState([]);
+	const [isLoaded, setIsLoaded] = useState(false);
+	const [filters, setFilters] = useFilter();
 
-    const [runs, setRuns] = useState([]);
-    const [runsFiltered, setRunsFiltered] = useState([]);
+	const startTime = new Date();
+	console.log("début du render :" + isLoaded + " Résultat attendu false")
 
-    const [filters, setFilters] = useFilter();
-    var offset = 0;
-   
-    function byTime(a,b){
-        return parseInt(a.times.primary_t) - parseInt(b.times.primary_t);
-    }
+	function byTime(a, b) {
+		return parseInt(a.times.primary_t) - parseInt(b.times.primary_t);
+	}
 
+	/**
+	 * Fonction de fetch de l'Api de Speedrun.com
+	 * @returns Liste des runs triée en fonction du temps
+	 */
+	function getAllRunsByCategories() {
+		let requests = [];
 
-    function getPage(offset){
-        return fetch("https://www.speedrun.com/api/v1/runs?game=3dxkz0v1&status=verified&category="+filters.categoryId+"&max=200&embed=players&offset="+offset)
-        .then(response => response.json())
-        .then(data => {
-            console.log("Offset dans getpage = " + offset)
-            return {data, offset}
-        })
-        .catch(error => {
-            console.error(error)
-            return Promise.reject(error)
-        })
-        }
-    
-    
-    function getAllRunsPromise(){
-        return getPage(offset).then(page =>{
-            if(page.data.data.length == 0){
-                //Il n'y a plus de data dans le call api
-                return page.data.data;
-            }else{
-                //Sinon on continue les calls
-                offset += 200
-                return getAllRunsPromise().then(nextPageData => {
-                    //console.log('page.data.data : ' + JSON.stringify(page.data.data))
-                    return page.data.data.concat(nextPageData)
-                })
-            }
-        })
-        .catch(error => {
-            console.error(error)
-            return Promise.reject(error)
-        })
-    }
+		// J'aime pas du tout cette manière de faire, mais l'api à été mal faite donc rip
+		for (let offset = 0; offset < 5000; offset += 200) {
 
-    function promiseAllRuns(){
+			var url = "https://www.speedrun.com/api/v1/runs?game=3dxkz0v1&status=verified&category=" + filters.categoryId + "&max=200&embed=players&offset=" + offset;
 
-        const start = new Date();
-        
-        Promise.all([getAllRunsPromise()])
-        .then(allData => {
-            console.log(allData)
-            
-            //Trie du tableau, on le .flat() avant
-            allData = allData.flat();
-            allData.sort(byTime);
-            
-            setRuns(allData)
-            const end = new Date();
-            
-            const diffTime = Math.abs(end - start);
-            console.log('Avec promise.all : ' + diffTime + 'ms')
-        })
-        .catch(error => {
-            console.error(error)
-        })
-    }
+			const request = fetch(url)
+				.then(response => response.json())
+				.then(data => {
+					// Check si des runs sont encore présente
+					if (data.pagination.size === 0) {
 
-    // Test avec async/await mais meilleur perf avec promise.all
-    /*async function callAllRuns() {
-        const start = new Date();
+						//Création d'une erreur si il n'y a plus de runs présente
+						throw new Error('No runs left');
+					} else {
+						return data;
+					}
+				});
+			requests.push(request);
+		}
+		console.log(requests);
+		return requests;
+	}
 
-        var results = [];
-        
-        var url = "https://www.speedrun.com/api/v1/runs?game=3dxkz0v1&status=verified&category="+filters.categoryId+"&max=200&embed=players"
-        
-        while (url) {
-            var response = await fetch(url);
-            
-            var data = await response.json();
-            console.log(data)
-            var nextUrl = await data.pagination.links
-            
-            if (nextUrl.length > 1) {
-                url = await nextUrl[1].uri
-            }else if (nextUrl == 0){
-                url = undefined;
-            } else if (nextUrl[0].rel === "next") {
-                url = await nextUrl[0].uri
-            }else{
-                url = undefined;
-            }
+	function filterRuns() {
+		const tab = new Set();
+		// TODO Gerer le fait qu'en boss rush il n'y a pas de subctahégory donc pas de filtrage à faire
+		//! Boss run ce qu'il faut faire :
+		//! Afficher l'igt et pas le rta donc à faire dans le render
+		//! Problème de filtrage avec le context vu qu'une des données n'existe pas
+		//! Donc soit modifier le context lors que c'est le boss rush soit trouver un moyen de bypass le filtrage
 
-            results.push(...data.data);
-        }
-        console.log(results[0])
-        results.sort(byTime);
-        console.log(results)
-        setRuns(results);
+		// Filtrage des runs en fonction des valeurs dans le context
+		// Check afin qu'aucun runner n'ait plusieurs runs de présente
 
-        const end = new Date();
+		var runsWithFilters = runs.filter((run) => {
 
-        const diffTime = Math.abs(end - start);
-        console.log('traitement : ' + diffTime + 'ms')
-        console.log(results)
-    }*/
-   
-    function filterRuns(){
+			//Check pour le cas Boss rush, subCategory undefined dans le context
+			if (run.values[filters.subCategory.key] !== undefined) {
+				return run.values[filters.difficulty.key] == [filters.difficulty.value] &&
+					run.values[filters.copy.key] == [filters.copy.value] &&
+					run.values[filters.turbo.key] == [filters.turbo.value] &&
+					run.values[filters.subCategory.key] == [filters.subCategory.value]
 
-        const words = ['spray', 'limit', 'elite', 'exuberant', 'destruction', 'present'];
+			} else {
+				return run.values[filters.difficulty.key] == [filters.difficulty.value] &&
+					run.values[filters.turbo.key] == [filters.turbo.value];
+			}
+		});
 
-        var result = words.filter(word => word.length > 6);
+		//Filtre permettant de ne pas avoir plusieurs runs depuis le même runnner
+		var runsGood = runsWithFilters.filter((element) => {
+			const isDuplicate = tab.has(element.players.data[0].id);
+			tab.add(element.players.data[0].id);
 
-        result = result.push(words.filter(word => word.length > 8));
-        console.log(result);
+			if (!isDuplicate) {
+				return true;
+			}
+			return false;
+		});
 
-        const tab = new Set();
-        // TODO Gerer le fait qu'en boss rush il n'y a pas de subctahégory donc pas de filtrage à faire
+		console.log(runsGood);
 
-        var runsWithFilters = runs.filter(run => run.values[filters.subCategory.key] == [filters.subCategory.value])
-        .filter(run => run.values[filters.difficulty.key] == [filters.difficulty.value])
-        .filter(run => run.values[filters.copy.key] == [filters.copy.value])
-        .filter(run => run.values[filters.turbo.key] == [filters.turbo.value])
-        .filter(element => {
-            
-            const isDuplicate = tab.has(element.players.data[0].id)
-            tab.add(element.players.data[0].id)
+		//Set des runs filtrées
+		setRunsFiltered(runsGood);
+	}
 
-            if(!isDuplicate){
-                return true
-            }
-            return false
-        })
+	function padTo2Digits(num) {
+		return num.toString().padStart(2, "0");
+	}
 
-        console.log(runsWithFilters)
-        
-        setRunsFiltered(runsWithFilters)
-    }
+	function getPrettyTime(totalSeconds) {
+		const secondes = Math.floor(totalSeconds % 60);
+		const minutes = Math.floor((totalSeconds % 3600) / 60);
+		const hours = Math.floor((totalSeconds % (3600 * 24)) / 3600);
 
-    function padTo2Digits(num){
-        return num.toString().padStart(2, '0');
-    }
+		let prettyTime;
 
-    function getPrettyTime(totalSeconds){
-        const secondes = Math.floor(totalSeconds % 60)
-        const minutes = Math.floor((totalSeconds % 3600) / 60);
-        const hours = Math.floor((totalSeconds % (3600 * 24)) / 3600);
-        
-        let prettyTime;
+		if (totalSeconds >= 3600) {
+			return (prettyTime = hours + "h " + padTo2Digits(minutes) + "m " + padTo2Digits(secondes) + "s");
+		} else {
+			return (prettyTime =
+				padTo2Digits(minutes) + "m " + padTo2Digits(secondes) + "s");
+		}
+	}
 
-        if(totalSeconds >= 3600){
-            return prettyTime = hours + 'h ' + padTo2Digits(minutes) + "m " +  padTo2Digits(secondes) +"s";
-        } else {
-            return prettyTime = padTo2Digits(minutes) + "m " +  padTo2Digits(secondes) +"s";
-        }
-    }
-    
-    // Lancement des calls api lors du premier render
-    useEffect(() => {
-        //callAllRuns()
-        promiseAllRuns();
-    }, [filters.categoryId])
-    
-    // Filtre des runs lorsque runs est défini ou les filtres sont modifiés
-    useEffect(() => {
-        console.log(runs)
-        filterRuns()
-    }, [filters, runs])
+	// Lancement des calls api lors du premier render
+	useEffect(() => {
+		let runs = [];
+		Promise.allSettled(getAllRunsByCategories())
+			.then(results => {
+				const endTime = new Date();
+				const timeDiff = endTime - startTime;
+				console.log(`Time taken: ${timeDiff / 1000} seconds`);
 
-    useUpdateEffect(() => {
-        //TODO Faire le tableau de comparaison
-        console.log(runsFiltered)
-    }, [runsFiltered])
-    /*useUpdateEffect(() => {
-        runFiltered = filterRuns();
-    }, [filters])*/// TODO mettre les filtres en dependances
+				//Filtre afin de n'avoir que des promesse fulfilled
+				let runsFulfilled = results.filter(result => result.status === "fulfilled");
+				runsFulfilled.map(allRun => {
+					allRun.value.data.map(run => {
+						runs.push(run)
+					})
+				});
 
-    if(!(runsFiltered == undefined)){
-        if( runsFiltered.length != 0){
-        return (
-            <table>
-                <thead>
-                    <tr>
-                        <th>Classement</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    
-                    {runsFiltered.map((run) => {
-                        //TODO Mettre les liens des videos (si il y en a) et mettre icon youtube ou twitch avec code couleur en hover
-                        return <tr key={run.id}>
-                                    <td>{run.players.data[0].names.international}</td>
-                                    <td>{getPrettyTime(run.times.primary_t)}</td>
-                                    <td><i class="fa-brands fa-youtube"></i></td>
-                                </tr>
-                    })}
-                </tbody>
-            </table>
-        );
-    }else{
-        return (
-            <div>
-                Aucune runs
-            </div>
-        );
-    }
-    }
+				//Trie des runs par temps
+				runs.sort(byTime);
+				console.log(runs);
+
+				//Update des states runs et isLoaded
+				setRuns(runs);
+				setIsLoaded(true);
+			})
+			.catch(error => {
+				console.error(error);
+			});
+	}, [filters.categoryId]);
+
+	// Filtre des runs lorsque runs est défini ou les filtres sont modifiés
+	useEffect(() => {
+		console.log(runs);
+		filterRuns();
+	}, [filters, runs]);
+
+	useUpdateEffect(() => {
+		console.log(isLoaded)
+	}, [isLoaded])
+
+	useUpdateEffect(() => {
+		if (runsFiltered != undefined) {
+			console.log(runsFiltered)
+		}
+	}, [runsFiltered]);
+
+	console.log(filters.categoryId)
+	if (!isLoaded) {//TODO mettre le logo de chargement de Dread
+		return <div>En cours de chargement</div>
+	} else if (runsFiltered.length == 0) {
+		return <div>No runs</div>
+	} else if (filters.categoryId !== "9kvrw802") { //!! Enlever physical Digital ça ne sert a rien en boss rush
+		return (
+			<table>
+				<thead>
+					<tr>
+						<th>Classement</th>
+						<th>RTA</th>
+						<th>Lien</th>
+					</tr>
+				</thead>
+				<tbody>
+					{runsFiltered.map((run) => {
+						//TODO Mettre les liens des videos (si il y en a) et mettre icon youtube ou twitch avec code couleur en hover
+						return (
+							<tr key={run.id}>
+								<td>{run.players.data[0].names.international}</td>
+								<td>{getPrettyTime(run.times.primary_t)}</td>
+								<td>
+									<i className="fa-brands fa-youtube"></i>
+								</td>
+							</tr>
+						);
+					})}
+				</tbody>
+			</table>
+		);
+	} else {
+		return (
+			<table>
+				<thead>
+					<tr>
+						<th>Classement</th>
+						<th>IGT</th>
+						<th>Lien</th>
+					</tr>
+				</thead>
+				<tbody>
+					{runsFiltered.map((run) => {
+						//TODO Mettre les liens des videos (si il y en a) et mettre icon youtube ou twitch avec code couleur en hover
+						if(Object.keys(run.players.data[0]).length === 3){
+							return (
+								<tr key={run.id}>
+									<td>{run.players.data[0].name}</td>
+									<td>{getPrettyTime(run.times.primary_t)}</td>
+									<td>
+										<i className="fa-brands fa-youtube"></i>
+									</td>
+								</tr>
+							);
+						}else{
+							return (
+								<tr key={run.id}>
+									<td>{run.players.data[0].names.international}</td>
+									<td>{getPrettyTime(run.times.primary_t)}</td>
+									<td>
+										<i className="fa-brands fa-youtube"></i>
+									</td>
+								</tr>
+							);
+						}
+					})}
+				</tbody>
+			</table>
+		);
+	}
 }
-

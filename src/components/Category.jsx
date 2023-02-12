@@ -34,15 +34,11 @@ export default function () {
     }, [categories])
 
 
-    if (categories === undefined) {
-        return (
-            <div>Charegement</div>
-        );
-    } else {
+    if (categories !== undefined) {
         return (
             <div>
                 {categories.data.map((data, index) => {
-                    console.log(data.id)
+                    //console.log(data.id)
                     if (data.id != filters.categoryId) {
                         return <button value={data.id} key={index} onClick={handleClick}>{data.name}</button>
                     } else {
@@ -52,6 +48,5 @@ export default function () {
                 })}
             </div>
         );
-
     }
 }

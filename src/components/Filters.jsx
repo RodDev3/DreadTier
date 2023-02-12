@@ -17,7 +17,7 @@ export default function () {
         var results = await response.json();
         
         console.log(results.data);
-
+        
         var subCategory = [];
         var difficulty = [];
         var turbo = [];
@@ -152,9 +152,7 @@ export default function () {
 
     }, [valueButtons]);
     
-    if (valueButtons == undefined) {
-        return (<div> Charegement qdsdqd</div>);
-    } else {
+    if (valueButtons !== undefined) {
         return (
             <div id="buttonsWrapper">
                 <div>
