@@ -8,16 +8,13 @@ export default function () {
 	const [isLoaded, setIsLoaded] = useState(false);
 	const [filters, setFilters] = useFilter();
 
-	const startTime = new Date();
-	console.log("début du render :" + isLoaded + " Résultat attendu false")
-
 	function byTime(a, b) {
 		return parseInt(a.times.primary_t) - parseInt(b.times.primary_t);
 	}
 
 	/**
 	 * Fonction de fetch de l'Api de Speedrun.com
-	 * @returns Liste des runs triée en fonction du temps
+	 * @return Liste des runs triée en fonction du temps
 	 */
 	function getAllRunsByCategories() {
 		let requests = [];
@@ -41,33 +38,22 @@ export default function () {
 				});
 			requests.push(request);
 		}
-		console.log(requests);
 		return requests;
 	}
 
 	function filterRuns() {
 		const tab = new Set();
-		// TODO Gerer le fait qu'en boss rush il n'y a pas de subctahégory donc pas de filtrage à faire
-		//! Boss run ce qu'il faut faire :
-		//! Afficher l'igt et pas le rta donc à faire dans le render
-		//! Problème de filtrage avec le context vu qu'une des données n'existe pas
-		//! Donc soit modifier le context lors que c'est le boss rush soit trouver un moyen de bypass le filtrage
-
-		// Filtrage des runs en fonction des valeurs dans le context
-		// Check afin qu'aucun runner n'ait plusieurs runs de présente
-
 		var runsWithFilters = runs.filter((run) => {
 
-			//Check pour le cas Boss rush, subCategory undefined dans le context
-			if (run.values[filters.subCategory.key] !== undefined) {
+			if (filters.categoryId !== "9kvrw802") {
 				return run.values[filters.difficulty.key] == [filters.difficulty.value] &&
 					run.values[filters.copy.key] == [filters.copy.value] &&
 					run.values[filters.turbo.key] == [filters.turbo.value] &&
 					run.values[filters.subCategory.key] == [filters.subCategory.value]
-
 			} else {
 				return run.values[filters.difficulty.key] == [filters.difficulty.value] &&
-					run.values[filters.turbo.key] == [filters.turbo.value];
+					run.values[filters.turbo.key] == [filters.turbo.value] &&
+					run.values[filters.subCategory.key] == [filters.subCategory.value];
 			}
 		});
 
@@ -82,8 +68,6 @@ export default function () {
 			return false;
 		});
 
-		console.log(runsGood);
-
 		//Set des runs filtrées
 		setRunsFiltered(runsGood);
 	}
@@ -92,6 +76,11 @@ export default function () {
 		return num.toString().padStart(2, "0");
 	}
 
+	/**
+	 * Fonction prennant le temps en miliseconde et renvoie le temps sous format heure minute seconde
+	 * @param {*} totalSeconds
+	 * @returns String
+	 */
 	function getPrettyTime(totalSeconds) {
 		const secondes = Math.floor(totalSeconds % 60);
 		const minutes = Math.floor((totalSeconds % 3600) / 60);
@@ -102,8 +91,7 @@ export default function () {
 		if (totalSeconds >= 3600) {
 			return (prettyTime = hours + "h " + padTo2Digits(minutes) + "m " + padTo2Digits(secondes) + "s");
 		} else {
-			return (prettyTime =
-				padTo2Digits(minutes) + "m " + padTo2Digits(secondes) + "s");
+			return (prettyTime = padTo2Digits(minutes) + "m " + padTo2Digits(secondes) + "s");
 		}
 	}
 
@@ -112,9 +100,6 @@ export default function () {
 		let runs = [];
 		Promise.allSettled(getAllRunsByCategories())
 			.then(results => {
-				const endTime = new Date();
-				const timeDiff = endTime - startTime;
-				console.log(`Time taken: ${timeDiff / 1000} seconds`);
 
 				//Filtre afin de n'avoir que des promesse fulfilled
 				let runsFulfilled = results.filter(result => result.status === "fulfilled");
@@ -126,7 +111,6 @@ export default function () {
 
 				//Trie des runs par temps
 				runs.sort(byTime);
-				console.log(runs);
 
 				//Update des states runs et isLoaded
 				setRuns(runs);
@@ -139,88 +123,63 @@ export default function () {
 
 	// Filtre des runs lorsque runs est défini ou les filtres sont modifiés
 	useEffect(() => {
-		console.log(runs);
 		filterRuns();
 	}, [filters, runs]);
 
-	useUpdateEffect(() => {
-		console.log(isLoaded)
-	}, [isLoaded])
-
-	useUpdateEffect(() => {
-		if (runsFiltered != undefined) {
-			console.log(runsFiltered)
-		}
-	}, [runsFiltered]);
-
-	console.log(filters.categoryId)
-	if (!isLoaded) {//TODO mettre le logo de chargement de Dread
+	if (!isLoaded) {
 		return <div>En cours de chargement</div>
 	} else if (runsFiltered.length == 0) {
-		return <div>No runs</div>
-	} else if (filters.categoryId !== "9kvrw802") { //!! Enlever physical Digital ça ne sert a rien en boss rush
+		return <div className="noRun">No runs</div>
+	} else { //Cas hors Boss Rush
 		return (
 			<table>
 				<thead>
 					<tr>
 						<th>Classement</th>
-						<th>RTA</th>
+						{filters.categoryId !== "9kvrw802" ?
+							<th>RTA</th>
+							:
+							<th>IGT</th>
+						}
 						<th>Lien</th>
 					</tr>
 				</thead>
 				<tbody>
 					{runsFiltered.map((run) => {
-						//TODO Mettre les liens des videos (si il y en a) et mettre icon youtube ou twitch avec code couleur en hover
 						return (
 							<tr key={run.id}>
-								<td>{run.players.data[0].names.international}</td>
-								<td>{getPrettyTime(run.times.primary_t)}</td>
-								<td>
-									<i className="fa-brands fa-youtube"></i>
+								<td className="player">
+									{/* Cas où le user à été supprimer */}
+									{run.players.data[0].rel !== "user" ?
+										run.players.data[0].name
+										:
+										run.players.data[0].names.international
+									}
+								</td>
+								<td className="time">{getPrettyTime(run.times.primary_t)}</td>
+								<td className="link">
+									{/* Cas où la run ne possède pas de vidéo */}
+									{run.videos !== null &&
+										Object.entries(run.videos)[0].includes('links') &&
+										<a href={run.videos.links[0].uri}>
+											{/* Changement d'icon en fonction de l'url */}
+											{run.videos.links['0'].uri.includes("youtu") ?
+												<i className="fa-brands fa-youtube"></i>
+												: run.videos.links['0'].uri.includes("twitch") ?
+													< i className="fa-brands fa-twitch"></i>
+													: run.videos.links['0'].uri.includes("imgur") ?
+														<i className="fa-regular fa-image"></i>
+														: <i class="fa-solid fa-video"></i>
+											}
+										</a>
+
+									}
 								</td>
 							</tr>
 						);
 					})}
 				</tbody>
-			</table>
-		);
-	} else {
-		return (
-			<table>
-				<thead>
-					<tr>
-						<th>Classement</th>
-						<th>IGT</th>
-						<th>Lien</th>
-					</tr>
-				</thead>
-				<tbody>
-					{runsFiltered.map((run) => {
-						//TODO Mettre les liens des videos (si il y en a) et mettre icon youtube ou twitch avec code couleur en hover
-						if(Object.keys(run.players.data[0]).length === 3){
-							return (
-								<tr key={run.id}>
-									<td>{run.players.data[0].name}</td>
-									<td>{getPrettyTime(run.times.primary_t)}</td>
-									<td>
-										<i className="fa-brands fa-youtube"></i>
-									</td>
-								</tr>
-							);
-						}else{
-							return (
-								<tr key={run.id}>
-									<td>{run.players.data[0].names.international}</td>
-									<td>{getPrettyTime(run.times.primary_t)}</td>
-									<td>
-										<i className="fa-brands fa-youtube"></i>
-									</td>
-								</tr>
-							);
-						}
-					})}
-				</tbody>
-			</table>
+			</table >
 		);
 	}
 }

@@ -3,7 +3,6 @@ import Leaderboard from './components/Leaderboard'
 import FilterProvider from './contexts/FilterContext'
 import Filters from './components/Filters'
 import Category from './components/Category'
-import Testing from './components/Testing'
 
 
 function App() {
@@ -11,7 +10,7 @@ function App() {
 		<div className="App">
 			<FilterProvider>
 				<Category />
-				<div className='allo'>
+				<div className='FiltersLeaderboard'>
 					<Filters />
 					<Leaderboard />
 				</div>

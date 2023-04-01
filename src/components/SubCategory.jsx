@@ -11,9 +11,9 @@ export default function (props) {
             {
                 Object.entries(props.row.values.values).map((key) => {
                     switch (key[0]) {
+                        case filters.copy.value:
                         case filters.difficulty.value:
                         case filters.turbo.value:
-                        case filters.copy.value:
                         case filters.subCategory.value:
                             return <button key={key[0]} onClick={props.function} value={key[0]} className="getValue" disabled="disabled">{key[1].label}</button>
 

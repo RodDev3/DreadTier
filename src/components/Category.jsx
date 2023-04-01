@@ -4,6 +4,7 @@ import useUpdateEffect from "./CustomHooks";
 import { useFilter } from "../contexts/FilterContext";
 
 
+
 export default function () {
 
     const [categories, setCategories] = useState(undefined)
@@ -28,24 +29,37 @@ export default function () {
         getAllCategory()
     }, [])
 
-    // TESTING
-    useUpdateEffect(() => {
-        console.log(categories.data[0].name)
-    }, [categories])
-
 
     if (categories !== undefined) {
         return (
             <div>
-                {categories.data.map((data, index) => {
-                    //console.log(data.id)
-                    if (data.id != filters.categoryId) {
-                        return <button value={data.id} key={index} onClick={handleClick}>{data.name}</button>
-                    } else {
-                        return <button value={data.id} key={index} onClick={handleClick} disabled="disabled">{data.name}</button>
+                <div className="responsiveCate">
+                    <span className="cateSelect">
+                        Catégories <i className="fa-solid fa-caret-down rotate"></i>
+                    </span>
+                    <div className="listCate">
+                        {categories.data.map((data, index) => {
+                            //console.log(data.id)
+                            if (data.id != filters.categoryId) {
+                                return <button value={data.id} key={index} onClick={handleClick}>{data.name}</button>
+                            } else {
+                                return <button value={data.id} key={index} onClick={handleClick} disabled="disabled">{data.name}</button>
 
-                    }
-                })}
+                            }
+                        })}
+                    </div>
+                </div>
+                <div className="category">
+                    {categories.data.map((data, index) => {
+                        //console.log(data.id)
+                        if (data.id != filters.categoryId) {
+                            return <button value={data.id} key={index} onClick={handleClick}>{data.name}</button>
+                        } else {
+                            return <button value={data.id} key={index} onClick={handleClick} disabled="disabled">{data.name}</button>
+
+                        }
+                    })}
+                </div>
             </div>
         );
     }

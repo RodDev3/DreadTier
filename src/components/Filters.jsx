@@ -15,9 +15,7 @@ export default function () {
         var url = 'https://www.speedrun.com/api/v1/categories/' + filters.categoryId + '/variables';
         var response = await fetch(url);
         var results = await response.json();
-        
-        console.log(results.data);
-        
+
         var subCategory = [];
         var difficulty = [];
         var turbo = [];
@@ -34,7 +32,6 @@ export default function () {
                     subCategory.push(row.id)
                     subCategory.push(row.values.values[Object.keys(row.values.values)[0]].label)
                     subCategory.push(Object.keys(row.values.values)[0])
-                    console.log(subCategory)
                     break;
 
                 case "Difficulty":
@@ -64,30 +61,29 @@ export default function () {
             setFilters({
                 ...filters,
                 subCategory: {
-                    label : subCategory[1],
+                    label: subCategory[1],
                     key: subCategory[0],
-                    value : subCategory[2]
+                    value: subCategory[2]
                 },
                 difficulty: {
-                    label : difficulty[1],
+                    label: difficulty[1],
                     key: difficulty[0],
-                    value : difficulty[2]
+                    value: difficulty[2]
                 },
                 turbo: {
-                    label : turbo[1],
+                    label: turbo[1],
                     key: turbo[0],
-                    value : turbo[2]
+                    value: turbo[2]
                 },
                 copy: {
-                    label : copy[1],
+                    label: copy[1],
                     key: copy[0],
-                    value : copy[2]
+                    value: copy[2]
                 }
             })
 
         })
         setValueButtons(results.data);
-
 
     }
 
@@ -144,27 +140,76 @@ export default function () {
         getSubCategoryFromCategory();
     }, [filters.categoryId])
 
-    useEffect(() => {
-        console.log(filters)
-    }, [filters])
-    
-    useUpdateEffect(() => {
-
-    }, [valueButtons]);
-    
     if (valueButtons !== undefined) {
         return (
-            <div id="buttonsWrapper">
-                <div>
+            <div>
+                {/* Burger pour le responsive */}
+                <div className="burger">
+                    <span className="sousCate">
+                        <i className="fa-solid fa-caret-down mirrorRotate"></i> Sous catégories
+                    </span>
+                    <div>
+                        <span>
+                            SubCategory :
+                        </span>
+                        {
+                            valueButtons.map((row) => {
+                                if (row.name === "Glitch Category" || row.name === "Category") {
+                                    return <SubCategory key={row.id} row={row} function={handleClickSubCategory} />
+                                }
+                            })
+                        }
+                        <span>
+                            Difficulty :
+                        </span>
+                        {
+                            valueButtons.map((row) => {
+                                if (row.name === "Difficulty") {
+                                    return <SubCategory key={row.id} row={row} function={handleClickDifficulty} />
+                                }
+                            })
+                        }
+                        <span>
+                            Turbo :
+                        </span>
+                        {
+                            valueButtons.map((row) => {
+                                if (row.name === "Turbo") {
+                                    return <SubCategory key={row.id} row={row} function={handleClickTurbo} />
+                                }
+                            })
+                        }
+                        {/* Gestion du Cas Boss Rush où l'on n'a pas besoin de support */}
+                        {filters.categoryId !== "9kvrw802" &&
+                            <span>
+                                Support :
+                            </span>
+                        }
+                        {
+                            filters.categoryId !== "9kvrw802" &&
+                            valueButtons.map((row) => {
+                                if (row.name === "Copy") {
+                                    return <SubCategory key={row.id} row={row} function={handleClickCopy} />
+                                }
+                            })
+
+                        }
+                    </div>
+                </div>
+                <div id="buttonsWrapper">
+                    <span>
+                        SubCategory :
+                    </span>
                     {
                         valueButtons.map((row) => {
                             if (row.name === "Glitch Category" || row.name === "Category") {
-                                return <SubCategory key={row.id} row={row} function={handleClickSubCategory}/>
+                                return <SubCategory key={row.id} row={row} function={handleClickSubCategory} />
                             }
                         })
                     }
-                </div>
-                <div>
+                    <span>
+                        Difficulty :
+                    </span>
                     {
                         valueButtons.map((row) => {
                             if (row.name === "Difficulty") {
@@ -172,8 +217,9 @@ export default function () {
                             }
                         })
                     }
-                </div>
-                <div>
+                    <span>
+                        Turbo :
+                    </span>
                     {
                         valueButtons.map((row) => {
                             if (row.name === "Turbo") {
@@ -181,19 +227,24 @@ export default function () {
                             }
                         })
                     }
-
-                </div>
-                <div>
+                    {/* Gestion du Cas Boss Rush où l'on n'a pas besoin de support */}
+                    {filters.categoryId !== "9kvrw802" &&
+                        <span>
+                            Support :
+                        </span>
+                    }
                     {
+                        filters.categoryId !== "9kvrw802" &&
                         valueButtons.map((row) => {
                             if (row.name === "Copy") {
                                 return <SubCategory key={row.id} row={row} function={handleClickCopy} />
                             }
                         })
+
                     }
                 </div>
-            </div>
 
+            </div>
         );
     }
 }

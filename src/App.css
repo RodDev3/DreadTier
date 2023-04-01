@@ -1,7 +1,127 @@
-.App{
-  background-image: url(/test.webp);
-  background-size: cover;
-  height: 100vh;
-  width: 100vw;
+.App {
+  margin: 0;
+  padding: 0;
+}
 
+.category {
+  display: flex;
+  justify-content: center;
+  padding: 15px 0px;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.FiltersLeaderboard {
+  display: flex;
+  align-items: flex-start;
+  margin: 10px 0 0 10px
+}
+
+#buttonsWrapper {
+  text-align: center;
+  padding: 10px 15px;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+}
+
+span {
+  margin: 5px 0;
+}
+
+button {
+  border: 2px solid black !important;
+}
+
+button:hover {
+  color: white;
+  border-color: white !important;
+  background-color: #1a1a1a;
+  border: 1px solid white;
+}
+
+.burger {
+  display: none;
+  flex-direction: column;
+  text-align: center;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.8);
+  width: fit-content;
+}
+
+.showBurger {
+  display: block;
+}
+
+.burger>div {
+  display: flex;
+  flex-direction: column;
+  width: fit-content;
+}
+
+.fa-bars {
+  display: none !important;
+  font-size: 50px;
+}
+
+.rotate {
+  transform: rotate(90deg);
+}
+
+.sousCate {
+  font-size: 26px;
+}
+
+.listCate {
+  display: none;
+  flex-direction: column;
+  width: fit-content;
+  margin: 15px;
+}
+
+.cateSelect {
+  margin: 0 0 0 15px;
+  font-size: 26px;
+  display: none;
+}
+
+.responsiveCate {
+  position: absolute;
+  background: rgba(0, 0, 0, 0.8);
+}
+
+@media screen and (max-width: 750px) {
+  .fa-bars {
+    display: block !important;
+  }
+
+  .sousCate {
+    display: block;
+    text-align: end;
+  }
+
+  .mirrorRotate {
+    transform: rotate(-90Deg);
+  }
+
+  #buttonsWrapper {
+    display: none !important;
+  }
+
+  .category {
+    display: none;
+  }
+
+  .FiltersLeaderboard {
+    margin: 0;
+  }
+
+  .burger {
+    display: block;
+    position: absolute;
+    right: 0;
+  }
+
+  .sousCate {
+    display: block;
+  }
 }
