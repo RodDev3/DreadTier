@@ -7,7 +7,7 @@ export default function (props) {
 
     //Affichage des sous catégories et disable les options présentes dans le context
     return (
-        <div>
+        <div id="subCategories">
             {
                 Object.entries(props.row.values.values).map((key) => {
                     switch (key[0]) {

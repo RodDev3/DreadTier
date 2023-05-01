@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useFilter } from "../contexts/FilterContext";
 import useUpdateEffect from "./CustomHooks";
+import '../assets/css/Leaderboard.css';
 
 export default function () {
 	const [runs, setRuns] = useState([]);
@@ -68,8 +69,37 @@ export default function () {
 			return false;
 		});
 
+		//! Tentative d'affichage de la position de chaque joueur avec gestion de des égalités
+		//TODO A optimiser (les continues ?, switch sur classement[i].times.primary)
+		//? Pourquoi ne pas prendre les informations dont j'ai besoin style
+		//? username, time, link, date
+		//? Plus simple à display, mieux maintenable, un seul endroit où mettre un model d'objet
+		const classement = runsGood;
+		var tempo;
+		for (var i = 0; i < classement.length; i++) {
+			if (i === 0) {
+				classement[i].position = i + 1;
+				continue;
+			}
+			if (classement[i].times.primary_t > classement[i - 1].times.primary_t) {
+				classement[i].position = i + 1;
+				tempo = undefined;
+				continue;
+			}
+			if (classement[i].times.primary_t === classement[i - 1].times.primary_t) {
+				if (tempo !== undefined) {
+					classement[i].position = tempo;
+				} else {
+					tempo = i;
+					classement[i].position = tempo;
+					continue;
+				}
+			}
+		}
+		console.log(classement);
+
 		//Set des runs filtrées
-		setRunsFiltered(runsGood);
+		setRunsFiltered(classement);
 	}
 
 	function padTo2Digits(num) {
@@ -126,6 +156,10 @@ export default function () {
 		filterRuns();
 	}, [filters, runs]);
 
+	useEffect(() => {
+		console.log(runsFiltered);
+	}, [runsFiltered])
+
 	if (!isLoaded) {
 		return <div>En cours de chargement</div>
 	} else if (runsFiltered.length == 0) {
@@ -135,7 +169,8 @@ export default function () {
 			<table>
 				<thead>
 					<tr>
-						<th>Classement</th>
+						<th>#</th>
+						<th>Player</th>
 						{filters.categoryId !== "9kvrw802" ?
 							<th>RTA</th>
 							:
@@ -148,6 +183,9 @@ export default function () {
 					{runsFiltered.map((run) => {
 						return (
 							<tr key={run.id}>
+								<td className="">
+									{run.position}
+								</td>
 								<td className="player">
 									{/* Cas où le user à été supprimer */}
 									{run.players.data[0].rel !== "user" ?

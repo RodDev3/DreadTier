@@ -26,7 +26,7 @@ a:hover {
 }
 
 body {
-  background-image: url(/test.webp);
+  background-image: url(/src/assets/Test.webp);
   background-size: cover;
   background-attachment: fixed;
   margin: 0;
