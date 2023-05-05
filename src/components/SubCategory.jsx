@@ -1,5 +1,5 @@
-import React from "react";
 import { useFilter } from "../contexts/FilterContext";
+//import '../assets/js/clickButton';
 
 export default function (props) {
 
@@ -15,10 +15,10 @@ export default function (props) {
                         case filters.difficulty.value:
                         case filters.turbo.value:
                         case filters.subCategory.value:
-                            return <button key={key[0]} onClick={props.function} value={key[0]} className="getValue" disabled="disabled">{key[1].label}</button>
+                            return <button key={key[0]} onClick={props.function} value={key[0]} className="buttonSelected" >{key[1].label}</button>
 
                         default:
-                            return <button key={key[0]} onClick={props.function} value={key[0]} className="getValue">{key[1].label}</button>
+                            return <button key={key[0]} onClick={props.function} value={key[0]} className="buttonNotSelected">{key[1].label}</button>
                     }
                 })
             }

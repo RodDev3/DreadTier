@@ -1,129 +1,139 @@
 .App {
-  margin: 0;
-  padding: 0;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    overflow-y: auto;
 }
 
 .category {
-  display: flex;
-  justify-content: center;
-  padding: 15px 0px;
-  background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    padding: 15px 0px;
+    background-color: rgba(0, 0, 0, 0.5);
 }
 
 .FiltersLeaderboard {
-  display: flex;
-  align-items: flex-start;
-  margin: 10px 0 0 10px
+    display: flex;
+    align-items: flex-start;
+    margin: 10px 0 0 10px
 }
 
 #buttonsWrapper {
-  text-align: center;
-  padding: 10px 15px;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  flex-direction: column;
-  top: 10px;
-  position: sticky;
+    text-align: center;
+    padding: 10px 15px;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    flex-direction: column;
+    top: 10px;
+    position: sticky;
 }
 
 span {
-  margin: 5px 0;
+    margin: 5px 0;
 }
 
-button {
-  border: 2px solid black !important;
+button:not(.buttonSelected):hover {
+    color: white;
+    border-color: white !important;
+    border: 2px solid white;
 }
 
-button:hover {
-  color: white;
-  border-color: white !important;
-  background-color: #1a1a1a;
-  border: 1px solid white;
+.buttonSelected {
+    color: black;
+    background-color: white;
+    border: 2px solid white;
+    cursor: default;
+}
+
+.buttonNotSelected {
+    border: 2px solid black;
 }
 
 .burger {
-  display: none;
-  flex-direction: column;
-  text-align: center;
-  align-items: center;
-  background: rgba(0, 0, 0, 0.8);
-  width: fit-content;
+    display: none;
+    flex-direction: column;
+    text-align: center;
+    align-items: center;
+    background: rgba(0, 0, 0, 0.8);
+    width: fit-content;
 }
 
 .showBurger {
-  display: block;
+    display: block;
 }
 
 .burger>div {
-  display: flex;
-  flex-direction: column;
-  width: fit-content;
+    display: flex;
+    flex-direction: column;
+    width: fit-content;
 }
 
 .fa-bars {
-  display: none !important;
-  font-size: 50px;
+    display: none !important;
+    font-size: 50px;
 }
 
 .rotate {
-  transform: rotate(90deg);
+    transform: rotate(90deg);
 }
 
 .sousCate {
-  font-size: 26px;
+    font-size: 26px;
 }
 
 .listCate {
-  display: none;
-  flex-direction: column;
-  width: fit-content;
-  margin: 15px;
+    display: none;
+    flex-direction: column;
+    width: fit-content;
+    margin: 15px;
 }
 
 .cateSelect {
-  margin: 0 0 0 15px;
-  font-size: 26px;
-  display: none;
+    margin: 0 0 0 15px;
+    font-size: 26px;
+    display: none;
 }
 
 .responsiveCate {
-  position: absolute;
-  background: rgba(0, 0, 0, 0.8);
+    position: absolute;
+    background: rgba(0, 0, 0, 0.8);
 }
 
 @media screen and (max-width: 750px) {
-  .fa-bars {
-    display: block !important;
-  }
+    .fa-bars {
+        display: block !important;
+    }
 
-  .sousCate {
-    display: block;
-    text-align: end;
-  }
+    .sousCate {
+        display: block;
+        text-align: end;
+    }
 
-  .mirrorRotate {
-    transform: rotate(-90Deg);
-  }
+    .mirrorRotate {
+        transform: rotate(-90Deg);
+    }
 
-  #buttonsWrapper {
-    display: none !important;
-  }
+    #buttonsWrapper {
+        display: none !important;
+    }
 
-  .category {
-    display: none;
-  }
+    .category {
+        display: none;
+    }
 
-  .FiltersLeaderboard {
-    margin: 0;
-  }
+    .FiltersLeaderboard {
+        margin: 0;
+    }
 
-  .burger {
-    display: block;
-    position: absolute;
-    right: 0;
-  }
+    .burger {
+        display: block;
+        position: absolute;
+        right: 0;
+    }
 
-  .sousCate {
-    display: block;
-  }
+    .sousCate {
+        display: block;
+    }
 }

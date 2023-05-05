@@ -1,4 +1,4 @@
-import './App.css'
+//import './App.css'
 import Leaderboard from './components/Leaderboard'
 import FilterProvider from './contexts/FilterContext'
 import Filters from './components/Filters'

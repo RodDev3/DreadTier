@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import { useFilter } from "../contexts/FilterContext";
 import useUpdateEffect from "./CustomHooks";
 import '../assets/css/Leaderboard.css';
+import RowTable from "./RowTable";
+import Testing from "./Testing";
 
 export default function () {
 	const [runs, setRuns] = useState([]);
@@ -44,14 +46,16 @@ export default function () {
 
 	function filterRuns() {
 		const tab = new Set();
-		var runsWithFilters = runs.filter((run) => {
 
+		//Filtrage des runs par rapport à ce que contient le context
+		var runsWithFilters = runs.filter((run) => {
 			if (filters.categoryId !== "9kvrw802") {
 				return run.values[filters.difficulty.key] == [filters.difficulty.value] &&
 					run.values[filters.copy.key] == [filters.copy.value] &&
 					run.values[filters.turbo.key] == [filters.turbo.value] &&
 					run.values[filters.subCategory.key] == [filters.subCategory.value]
 			} else {
+				//Cas boss rush où l'on ne filtre pas par copy
 				return run.values[filters.difficulty.key] == [filters.difficulty.value] &&
 					run.values[filters.turbo.key] == [filters.turbo.value] &&
 					run.values[filters.subCategory.key] == [filters.subCategory.value];
@@ -69,60 +73,32 @@ export default function () {
 			return false;
 		});
 
-		//! Tentative d'affichage de la position de chaque joueur avec gestion de des égalités
-		//TODO A optimiser (les continues ?, switch sur classement[i].times.primary)
-		//? Pourquoi ne pas prendre les informations dont j'ai besoin style
-		//? username, time, link, date
-		//? Plus simple à display, mieux maintenable, un seul endroit où mettre un model d'objet
-		const classement = runsGood;
+		//Gestion de la position dans le classement
 		var tempo;
-		for (var i = 0; i < classement.length; i++) {
+		for (var i = 0; i < runsGood.length; i++) {
 			if (i === 0) {
-				classement[i].position = i + 1;
+				runsGood[i].position = i + 1;
 				continue;
 			}
-			if (classement[i].times.primary_t > classement[i - 1].times.primary_t) {
-				classement[i].position = i + 1;
+			if (runsGood[i].times.primary_t > runsGood[i - 1].times.primary_t) {
+				runsGood[i].position = i + 1;
 				tempo = undefined;
 				continue;
 			}
-			if (classement[i].times.primary_t === classement[i - 1].times.primary_t) {
+			if (runsGood[i].times.primary_t === runsGood[i - 1].times.primary_t) {
 				if (tempo !== undefined) {
-					classement[i].position = tempo;
+					runsGood[i].position = tempo;
 				} else {
 					tempo = i;
-					classement[i].position = tempo;
+					runsGood[i].position = tempo;
 					continue;
 				}
 			}
 		}
-		console.log(classement);
+		console.log(runsGood);
 
 		//Set des runs filtrées
-		setRunsFiltered(classement);
-	}
-
-	function padTo2Digits(num) {
-		return num.toString().padStart(2, "0");
-	}
-
-	/**
-	 * Fonction prennant le temps en miliseconde et renvoie le temps sous format heure minute seconde
-	 * @param {*} totalSeconds
-	 * @returns String
-	 */
-	function getPrettyTime(totalSeconds) {
-		const secondes = Math.floor(totalSeconds % 60);
-		const minutes = Math.floor((totalSeconds % 3600) / 60);
-		const hours = Math.floor((totalSeconds % (3600 * 24)) / 3600);
-
-		let prettyTime;
-
-		if (totalSeconds >= 3600) {
-			return (prettyTime = hours + "h " + padTo2Digits(minutes) + "m " + padTo2Digits(secondes) + "s");
-		} else {
-			return (prettyTime = padTo2Digits(minutes) + "m " + padTo2Digits(secondes) + "s");
-		}
+		setRunsFiltered(runsGood);
 	}
 
 	// Lancement des calls api lors du premier render
@@ -157,20 +133,21 @@ export default function () {
 	}, [filters, runs]);
 
 	useEffect(() => {
-		console.log(runsFiltered);
+		//console.log(runsFiltered);
 	}, [runsFiltered])
 
 	if (!isLoaded) {
 		return <div>En cours de chargement</div>
 	} else if (runsFiltered.length == 0) {
 		return <div className="noRun">No runs</div>
-	} else { //Cas hors Boss Rush
+	} else {
 		return (
 			<table>
 				<thead>
 					<tr>
 						<th>#</th>
 						<th>Player</th>
+						{/* Cas Boss Rush */}
 						{filters.categoryId !== "9kvrw802" ?
 							<th>RTA</th>
 							:
@@ -180,42 +157,11 @@ export default function () {
 					</tr>
 				</thead>
 				<tbody>
-					{runsFiltered.map((run) => {
-						return (
-							<tr key={run.id}>
-								<td className="">
-									{run.position}
-								</td>
-								<td className="player">
-									{/* Cas où le user à été supprimer */}
-									{run.players.data[0].rel !== "user" ?
-										run.players.data[0].name
-										:
-										run.players.data[0].names.international
-									}
-								</td>
-								<td className="time">{getPrettyTime(run.times.primary_t)}</td>
-								<td className="link">
-									{/* Cas où la run ne possède pas de vidéo */}
-									{run.videos !== null &&
-										Object.entries(run.videos)[0].includes('links') &&
-										<a href={run.videos.links[0].uri}>
-											{/* Changement d'icon en fonction de l'url */}
-											{run.videos.links['0'].uri.includes("youtu") ?
-												<i className="fa-brands fa-youtube"></i>
-												: run.videos.links['0'].uri.includes("twitch") ?
-													< i className="fa-brands fa-twitch"></i>
-													: run.videos.links['0'].uri.includes("imgur") ?
-														<i className="fa-regular fa-image"></i>
-														: <i class="fa-solid fa-video"></i>
-											}
-										</a>
-
-									}
-								</td>
-							</tr>
-						);
-					})}
+					{
+						runsFiltered.map(run => {
+							return <RowTable key={run.id} run={run} />
+						})
+					}
 				</tbody>
 			</table >
 		);

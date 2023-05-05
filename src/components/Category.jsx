@@ -53,9 +53,9 @@ export default function () {
                     {categories.data.map((data, index) => {
                         //console.log(data.id)
                         if (data.id != filters.categoryId) {
-                            return <button value={data.id} key={index} onClick={handleClick}>{data.name}</button>
+                            return <button value={data.id} key={index} onClick={handleClick} className="buttonNotSelected">{data.name}</button>
                         } else {
-                            return <button value={data.id} key={index} onClick={handleClick} disabled="disabled">{data.name}</button>
+                            return <button value={data.id} key={index} onClick={handleClick} className="buttonSelected">{data.name}</button>
 
                         }
                     })}
