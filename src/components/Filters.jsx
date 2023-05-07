@@ -3,11 +3,12 @@ import { useEffect, useState } from "react";
 import { useFilter } from '../contexts/FilterContext';
 import useUpdateEffect from "./CustomHooks";
 import SubCategory from "./SubCategory";
+import { useDevice } from "../contexts/DeviceContext";
 
 export default function () {
 
     const [filters, setFilters] = useFilter();
-
+    const device = useDevice();
     const [valueButtons, setValueButtons] = useState();
 
 
@@ -135,71 +136,56 @@ export default function () {
         });
     }
 
-    //TODO Voir si besoin d'un useUpdateEffect
+
     useEffect(() => {
         getSubCategoryFromCategory();
     }, [filters.categoryId])
 
+    //TODO Pour l'affichage Mobile voir pour récup les data des selects
     if (valueButtons !== undefined) {
-        return (
-            <div>
-                {/* Burger pour le responsive */}
-                <div className="burger">
-                    <span className="sousCate">
-                        <i className="fa-solid fa-caret-down mirrorRotate"></i> Sous catégories
-                    </span>
-                    <div>
-                        <span>
-                            SubCategory :
-                        </span>
-                        {
-                            valueButtons.map((row) => {
-                                if (row.name === "Glitch Category" || row.name === "Category") {
+        if (device.device === "isMobile") {
+            return (
+                <div>
+                    <select name="" id="">
+                        {valueButtons.map((row) => {
+                            if (row.name === "Glitch Category" || row.name === "Category") {
+                                return <SubCategory key={row.id} row={row} function={handleClickSubCategory} />
+                            }
+                        })}
+                    </select>
+                    <select name="" id="">
+                        {valueButtons.map((row) => {
+                            if (row.name === "Difficulty") {
+                                return <SubCategory key={row.id} row={row} function={handleClickSubCategory} />
+                            }
+                        })}
+                    </select>
+                    <select name="" id="">
+                        {valueButtons.map((row) => {
+                            if (row.name === "Turbo") {
+                                return <SubCategory key={row.id} row={row} function={handleClickSubCategory} />
+                            }
+                        })}
+                    </select>
+                    {filters.categoryId !== "9kvrw802" &&
+                        <select name="" id="">
+                            {valueButtons.map((row) => {
+                                if (row.name === "Copy") {
                                     return <SubCategory key={row.id} row={row} function={handleClickSubCategory} />
                                 }
-                            })
-                        }
-                        <span>
-                            Difficulty :
-                        </span>
-                        {
-                            valueButtons.map((row) => {
-                                if (row.name === "Difficulty") {
-                                    return <SubCategory key={row.id} row={row} function={handleClickDifficulty} />
-                                }
-                            })
-                        }
-                        <span>
-                            Turbo :
-                        </span>
-                        {
-                            valueButtons.map((row) => {
-                                if (row.name === "Turbo") {
-                                    return <SubCategory key={row.id} row={row} function={handleClickTurbo} />
-                                }
-                            })
-                        }
-                        {/* Gestion du Cas Boss Rush où l'on n'a pas besoin de support */}
-                        {filters.categoryId !== "9kvrw802" &&
-                            <span>
-                                Support :
-                            </span>
-                        }
-                        {
-                            filters.categoryId !== "9kvrw802" &&
-                            valueButtons.map((row) => {
-                                if (row.name === "Copy") {
-                                    return <SubCategory key={row.id} row={row} function={handleClickCopy} />
-                                }
-                            })
-
-                        }
-                    </div>
+                            })}
+                        </select>
+                    }
                 </div>
-                <div id="buttonsWrapper">
-                    <span>
-                        SubCategory :
-                    </span>
+            );
+        }
+        //Desktop Display
+        return (
+            <div id="buttonsWrapper">
+                <span>
+                    SubCategory :
+                </span>
+                <div className="subCategories">
                     {
                         valueButtons.map((row) => {
                             if (row.name === "Glitch Category" || row.name === "Category") {
@@ -207,9 +193,12 @@ export default function () {
                             }
                         })
                     }
-                    <span>
-                        Difficulty :
-                    </span>
+                </div>
+                <span>
+                    Difficulty :
+                </span>
+                <div className="subCategories">
+
                     {
                         valueButtons.map((row) => {
                             if (row.name === "Difficulty") {
@@ -217,9 +206,12 @@ export default function () {
                             }
                         })
                     }
-                    <span>
-                        Turbo :
-                    </span>
+                </div>
+                <span>
+                    Turbo :
+                </span>
+                <div className="subCategories">
+
                     {
                         valueButtons.map((row) => {
                             if (row.name === "Turbo") {
@@ -227,12 +219,15 @@ export default function () {
                             }
                         })
                     }
-                    {/* Gestion du Cas Boss Rush où l'on n'a pas besoin de support */}
-                    {filters.categoryId !== "9kvrw802" &&
-                        <span>
-                            Support :
-                        </span>
-                    }
+                </div>
+                {/* Gestion du Cas Boss Rush où l'on n'a pas besoin de support */}
+                {filters.categoryId !== "9kvrw802" &&
+                    <span>
+                        Support :
+                    </span>
+                }
+                <div className="subCategories">
+
                     {
                         filters.categoryId !== "9kvrw802" &&
                         valueButtons.map((row) => {
@@ -243,8 +238,8 @@ export default function () {
 
                     }
                 </div>
-
             </div>
+
         );
     }
 }

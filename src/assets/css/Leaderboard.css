@@ -81,3 +81,9 @@ tr>td:first-of-type {
     padding: 0 10px;
     text-align: center;
 }
+
+@media screen and (max-width: 767px) {
+    #desktop {
+        display: grid;
+    }
+}

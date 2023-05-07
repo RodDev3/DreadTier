@@ -3,7 +3,6 @@ import { useFilter } from "../contexts/FilterContext";
 import useUpdateEffect from "./CustomHooks";
 import '../assets/css/Leaderboard.css';
 import RowTable from "./RowTable";
-import Testing from "./Testing";
 
 export default function () {
 	const [runs, setRuns] = useState([]);
@@ -117,6 +116,7 @@ export default function () {
 
 				//Trie des runs par temps
 				runs.sort(byTime);
+
 
 				//Update des states runs et isLoaded
 				setRuns(runs);

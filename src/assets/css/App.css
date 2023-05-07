@@ -3,8 +3,10 @@
     padding: 0;
 }
 
-body {
-    overflow-y: auto;
+/* Cache la scroll bar*/
+/*TODO Faire pour les autres nav*/
+::-webkit-scrollbar {
+    display: none;
 }
 
 .category {
@@ -99,41 +101,4 @@ button:not(.buttonSelected):hover {
 .responsiveCate {
     position: absolute;
     background: rgba(0, 0, 0, 0.8);
-}
-
-@media screen and (max-width: 750px) {
-    .fa-bars {
-        display: block !important;
-    }
-
-    .sousCate {
-        display: block;
-        text-align: end;
-    }
-
-    .mirrorRotate {
-        transform: rotate(-90Deg);
-    }
-
-    #buttonsWrapper {
-        display: none !important;
-    }
-
-    .category {
-        display: none;
-    }
-
-    .FiltersLeaderboard {
-        margin: 0;
-    }
-
-    .burger {
-        display: block;
-        position: absolute;
-        right: 0;
-    }
-
-    .sousCate {
-        display: block;
-    }
 }

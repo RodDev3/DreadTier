@@ -2,13 +2,14 @@ import React from "react";
 import { useEffect, useState } from "react";
 import useUpdateEffect from "./CustomHooks";
 import { useFilter } from "../contexts/FilterContext";
+import { useDevice } from "../contexts/DeviceContext";
 
 
 
 export default function () {
 
     const [categories, setCategories] = useState(undefined)
-
+    const device = useDevice();
     const [filters, setFilters] = useFilter();
 
     async function getAllCategory() {
@@ -31,24 +32,24 @@ export default function () {
 
 
     if (categories !== undefined) {
-        return (
-            <div>
-                <div className="responsiveCate">
-                    <span className="cateSelect">
-                        Catégories <i className="fa-solid fa-caret-down rotate"></i>
-                    </span>
-                    <div className="listCate">
-                        {categories.data.map((data, index) => {
-                            //console.log(data.id)
-                            if (data.id != filters.categoryId) {
-                                return <button value={data.id} key={index} onClick={handleClick}>{data.name}</button>
+        if (device.device === "isMobile") {
+            //Affichage Mobile
+            return (
+                <div>
+                    <select name="" id="">
+                        {categories.data.map(data => {
+                            if (data.id !== filters.categoriesId) {
+                                return <option value="">{data.name}</option>
                             } else {
-                                return <button value={data.id} key={index} onClick={handleClick} disabled="disabled">{data.name}</button>
-
+                                return <option value="" selected="selected">{data.name}</option>
                             }
                         })}
-                    </div>
+                    </select>
                 </div>
+            );
+        } else {
+            //Affichage Bureau
+            return (
                 <div className="category">
                     {categories.data.map((data, index) => {
                         //console.log(data.id)
@@ -60,7 +61,7 @@ export default function () {
                         }
                     })}
                 </div>
-            </div>
-        );
+            );
+        }
     }
 }

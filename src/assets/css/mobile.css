@@ -1,0 +1,14 @@
+#mobile {
+    display: flex;
+    flex-direction: column;
+}
+
+#cateAndFilters {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+select {
+    margin: 10px 0 0 5px;
+}
