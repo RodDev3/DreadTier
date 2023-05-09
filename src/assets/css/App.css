@@ -36,9 +36,13 @@ span {
     margin: 5px 0;
 }
 
+#save {
+    width: fit-content;
+    margin-top: 10px;
+    align-self: center;
+}
+
 button:not(.buttonSelected):hover {
-    color: white;
-    border-color: white !important;
     border: 2px solid white;
 }
 
@@ -101,4 +105,9 @@ button:not(.buttonSelected):hover {
 .responsiveCate {
     position: absolute;
     background: rgba(0, 0, 0, 0.8);
+}
+
+button:disabled:hover {
+    border-color: transparent;
+    cursor: default !important;
 }

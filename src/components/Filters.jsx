@@ -1,9 +1,10 @@
 import React from "react";
 import { useEffect, useState } from "react";
 import { useFilter } from '../contexts/FilterContext';
-import useUpdateEffect from "./CustomHooks";
 import SubCategory from "./SubCategory";
 import { useDevice } from "../contexts/DeviceContext";
+import SaveLeaderboard from "./SaveLeaderboard";
+import Cookies from "js-cookie";
 
 export default function () {
 
@@ -58,34 +59,81 @@ export default function () {
 
                 default: break;
             }
-            //Value par default
-            setFilters({
-                ...filters,
-                subCategory: {
-                    label: subCategory[1],
-                    key: subCategory[0],
-                    value: subCategory[2]
-                },
-                difficulty: {
-                    label: difficulty[1],
-                    key: difficulty[0],
-                    value: difficulty[2]
-                },
-                turbo: {
-                    label: turbo[1],
-                    key: turbo[0],
-                    value: turbo[2]
-                },
-                copy: {
-                    label: copy[1],
-                    key: copy[0],
-                    value: copy[2]
-                }
-            })
 
+            //Application de valeur par default dans les sous cate selectionnee
+            if (Cookies.get("lbSave") !== undefined) {
+
+                //Si le cookie lbSave existe
+                let cookie = JSON.parse(Cookies.get("lbSave"));
+                if (cookie.categoryId === filters.categoryId) {
+
+                    //Et si === categoryId
+                    //Alors on set les default values avec celles dans le cookie
+                    setFilters({
+                        ...filters,
+                        subCategory: {
+                            label: cookie.subCategory.label,
+                            key: cookie.subCategory.key,
+                            value: cookie.subCategory.value
+                        },
+                        difficulty: {
+                            label: cookie.difficulty.label,
+                            key: cookie.difficulty.key,
+                            value: cookie.difficulty.value
+                        },
+                        turbo: {
+                            label: cookie.turbo.label,
+                            key: cookie.turbo.key,
+                            value: cookie.turbo.value
+                        },
+                        copy: {
+                            label: cookie.copy.label,
+                            key: cookie.copy.key,
+                            value: cookie.copy.value
+                        }
+                    })
+                } else {
+
+                    //Sinon default value
+                    defaultValue(subCategory, difficulty, turbo, copy);
+                }
+            } else {
+
+                //Sinon default value
+                defaultValue(subCategory, difficulty, turbo, copy);
+
+            }
         })
+        //Set les values qui seront contenu dans les buttons
         setValueButtons(results.data);
 
+    }
+
+    //Fonction d'application des valeurs par default
+    function defaultValue(subCategory, difficulty, turbo, copy) {
+        setFilters({
+            ...filters,
+            subCategory: {
+                label: subCategory[1],
+                key: subCategory[0],
+                value: subCategory[2]
+            },
+            difficulty: {
+                label: difficulty[1],
+                key: difficulty[0],
+                value: difficulty[2]
+            },
+            turbo: {
+                label: turbo[1],
+                key: turbo[0],
+                value: turbo[2]
+            },
+            copy: {
+                label: copy[1],
+                key: copy[0],
+                value: copy[2]
+            }
+        })
     }
 
     function handleClickTurbo(e) {
@@ -136,6 +184,51 @@ export default function () {
         });
     }
 
+    function handleChangeMobile(e) {
+        switch (e.target.name) {
+            case "SubCate":
+                setFilters({
+                    ...filters,
+                    subCategory: {
+                        ...filters.subCategory,
+                        value: e.target.value,
+                        label: e.target.options[e.target.selectedIndex].textContent
+                    }
+                });
+                break;
+            case "Difficulty":
+                setFilters({
+                    ...filters,
+                    difficulty: {
+                        ...filters.difficulty,
+                        value: e.target.value,
+                        label: e.target.options[e.target.selectedIndex].textContent
+                    }
+                });
+                break;
+            case "Turbo":
+                setFilters({
+                    ...filters,
+                    turbo: {
+                        ...filters.turbo,
+                        value: e.target.value,
+                        label: e.target.options[e.target.selectedIndex].textContent
+                    }
+                });
+                break;
+            case "Copy":
+                setFilters({
+                    ...filters,
+                    copy: {
+                        ...filters.copy,
+                        value: e.target.value,
+                        label: e.target.options[e.target.selectedIndex].textContent
+                    }
+                });
+                break;
+        }
+    }
+
 
     useEffect(() => {
         getSubCategoryFromCategory();
@@ -146,36 +239,37 @@ export default function () {
         if (device.device === "isMobile") {
             return (
                 <div>
-                    <select name="" id="">
+                    <select name="SubCate" value={filters.subCategory.value} onChange={handleChangeMobile}>
                         {valueButtons.map((row) => {
                             if (row.name === "Glitch Category" || row.name === "Category") {
-                                return <SubCategory key={row.id} row={row} function={handleClickSubCategory} />
+                                return <SubCategory key={row.id} row={row} />
                             }
                         })}
                     </select>
-                    <select name="" id="">
+                    <select name="Difficulty" value={filters.difficulty.value} onChange={handleChangeMobile}>
                         {valueButtons.map((row) => {
                             if (row.name === "Difficulty") {
-                                return <SubCategory key={row.id} row={row} function={handleClickSubCategory} />
+                                return <SubCategory key={row.id} row={row} />
                             }
                         })}
                     </select>
-                    <select name="" id="">
+                    <select name="Turbo" value={filters.turbo.value} onChange={handleChangeMobile}>
                         {valueButtons.map((row) => {
                             if (row.name === "Turbo") {
-                                return <SubCategory key={row.id} row={row} function={handleClickSubCategory} />
+                                return <SubCategory key={row.id} row={row} />
                             }
                         })}
                     </select>
                     {filters.categoryId !== "9kvrw802" &&
-                        <select name="" id="">
+                        <select name="Copy" value={filters.copy.value} onChange={handleChangeMobile}>
                             {valueButtons.map((row) => {
                                 if (row.name === "Copy") {
-                                    return <SubCategory key={row.id} row={row} function={handleClickSubCategory} />
+                                    return <SubCategory key={row.id} row={row} />
                                 }
                             })}
                         </select>
                     }
+                    <SaveLeaderboard />
                 </div>
             );
         }
@@ -238,6 +332,7 @@ export default function () {
 
                     }
                 </div>
+                <SaveLeaderboard />
             </div>
 
         );

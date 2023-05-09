@@ -36,12 +36,12 @@ export default function () {
             //Affichage Mobile
             return (
                 <div>
-                    <select name="" id="">
-                        {categories.data.map(data => {
+                    <select name="Cate" value={filters.categoryId} onChange={handleClick}>
+                        {categories.data.map((data, index) => {
                             if (data.id !== filters.categoriesId) {
-                                return <option value="">{data.name}</option>
+                                return <option key={index} value={data.id}>{data.name}</option>
                             } else {
-                                return <option value="" selected="selected">{data.name}</option>
+                                return <option key={index}>{data.name}</option>
                             }
                         })}
                     </select>

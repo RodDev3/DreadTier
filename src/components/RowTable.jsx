@@ -59,7 +59,7 @@ export default function (props) {
                                 < i className="fa-brands fa-twitch"></i>
                                 : props.run.videos.links['0'].uri.includes("imgur") ?
                                     <i className="fa-regular fa-image"></i>
-                                    : <i class="fa-solid fa-video"></i>
+                                    : <i className="fa-solid fa-video"></i>
                         }
                     </a>
 

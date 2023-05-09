@@ -89,6 +89,12 @@ button:hover {
   background: rgba(0, 0, 0, 0.8);
 }
 
+button:disabled:hover {
+  border-color: inherit !important;
+  color: inherit !important;
+  cursor: default !important;
+}
+
 @media screen and (max-width: 750px) {
   .fa-bars {
     display: block !important;

@@ -12,3 +12,9 @@
 select {
     margin: 10px 0 0 5px;
 }
+
+@media screen and (max-width: 767px) {
+    table {
+        width: 100%;
+    }
+}

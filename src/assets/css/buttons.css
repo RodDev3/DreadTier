@@ -1,6 +1,6 @@
 button:not(.buttonSelected):hover {
     color: white;
-    border-color: white !important;
+    border-color: white;
     border: 2px solid white;
 }
 
@@ -13,4 +13,10 @@ button:not(.buttonSelected):hover {
 
 .buttonNotSelected {
     border: 2px solid black;
+}
+
+#save {
+    width: fit-content;
+    margin-top: 10px;
+    align-self: center;
 }
